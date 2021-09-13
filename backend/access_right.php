@@ -1,4 +1,5 @@
 <?php
+session_start();
 require "DB.php";
 class polz{
     private $com='';
@@ -21,6 +22,7 @@ private function comment(){
 }
 }
 class admin extends polz{
+    private $id='';
     private $name_obzor='';
     private $obzor='';
     private $image='';
@@ -45,7 +47,8 @@ class admin extends polz{
     }
     private function validate()
     {
-        if (isset($this->name_obzor) && isset($this->obzor) && isset($this->image) && isset($this->video)) {
+        if (isset($this->name_obzor) && strlen($this->name_obzor) < 50 && strlen($this->obzor) < 1000 && isset($this->obzor) && isset($this->image) && isset($this->video) && strlen($this->image['name']) < 150 && strlen($this->video['name']) < 150) {
+
             if (!empty($this->image['error']) || empty($this->image['tmp_name'])) {
                 switch (@$this->image['error']) {
                     case 1:
@@ -189,10 +192,36 @@ class admin extends polz{
                         }
                     }
                 }
+        }else{
+            if(!isset($this->name_obzor)){
+                $this->error_name_obzer="не введно имя обзора";
+            }
+            if(strlen($this->name_obzer)>50){
+                $this->error_name_obzer="Слишком большое имя обзора";
+            }
+            if(!isset($this->obzor)){
+                $this->error_obzer="Не введён обзор";
+            }
+            if(strlen($this->obzer)>1000){
+                $this->error_name_obzer="Слишком большой текст";
+            }
+            if(strlen($this->image['name']) > 150){
+                $this->error_image="Слишком большое имя рисунка";
+            }
+            if(!isset($this->image)){
+                $this->error_image="отсутствует рисунок";
+            }
+            if(!isset($this->video)){
+                $this->error_video="отсутствует Видео";
+            }
+            if(strlen($this->video['name']) > 150){
+                $this->error_video="Слишком большое имя видео";
+            }
         }
     }
 
     private function loadfiles($parts_image,$parts_video){
+        $this->id=$_SESSION['id'];
         $this->polz=new polz;
         $path_image="C:/OpenServer/domains/localhost/server_image/";
         $i = 0;
@@ -210,8 +239,10 @@ class admin extends polz{
         }
         $name_video = $parts_video['filename'] . $prefix . '.' . $parts_video['extension'];
         move_uploaded_file($this->video['tmp_name'], $path_video.$name_video);
-        $today=mktime(0,0,0,date("d"),date("m"),date("Y"));
-        $DBadd=$this->polz->DatBas->DaBa->prepare("INSERT INTO `obzor` ( `id_admin`, `name_obzor`, `text`, `files_pic`, `files_vid`, `time`) VALUES ('1', '$this->name_obzor', '$this->obzor', '$name_image', '$name_video', '$today')");
+        $today=date("y.m.d");
+        echo $today."\n";
+        $DBadd=$this->polz->DatBas->DaBa->prepare("INSERT INTO `obzor` ( `id_admin`, `name_obzor`, `text`, `files_pic`, `files_vid`, `time`) VALUES ('$this->id', '$this->name_obzor', '$this->obzor', '$name_image', '$name_video', '$today')");
+        $DBadd->execute();
     }
 }
 ?>

@@ -1,14 +1,12 @@
 <?php
 session_start();
-require "backend/login.php";
-if($_SESSION['user']){
-    echo "не пусто";
-}else echo "пусто";
+//require "backend/login.php";
 if(isset($_POST['exit'])) {
     unset($_SESSION['user']);
     if (!empty($_SESSION['admin'])) {
         unset($_SESSION['admin']);
     }
+
 }
 ?>
 <!DOCTYPE html>
@@ -49,4 +47,5 @@ elseif(isset($_POST['autoriz'])){
     header("Location:/frontend/createObzer.php ");
     exit;
 }
+
 ?>

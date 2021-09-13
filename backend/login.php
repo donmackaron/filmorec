@@ -36,16 +36,12 @@ $this->validation();
 
             $autochek = $this->DaaBaa->DaBa->prepare("SELECT * FROM `registred` WHERE `email` LIKE '$this->email' AND password = MD5('$this->password')");
             $autochek->execute();
-            //$autochek = $this->DaaBaa->DaBa->prepare("SELECT FOUND ROWS");
-
             $autochek_column = $autochek->fetchColumn();
-
-
             if (isset($this->button_reg) && empty($regchek_column)) { //проверка на необходимость регистрации
                 echo "Начало регистрации\n";
                 if (filter_var($this->email, FILTER_VALIDATE_EMAIL) && strlen($this->email) < 30 && strlen($this->name) < 30 && preg_match("/^[a-zа-яё\d]{1}[a-zа-яё\d\s]*[a-zа-яё\d]{1}$/i", $this->name) && strlen($this->password) == 32 && isset($this->reterypass) && MD5($this->password) == MD5($this->reterypass) && isset($this->chek)) { //валидация полей для регистрации
 
-                    $this->registration();
+                    $this->registration($regchek_column);
                     echo "Успешная регистрация\n";
                 }else{ //если одно из полей заполнено не верно
                     if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
@@ -74,7 +70,6 @@ $this->validation();
                     if(!isset($this->chek)){
                         $err_chek=1;
                     }
-
                     $err_reg=1;
                     $_POST['err_reg_email']=$err_reg_email;
                     $_POST['err_count_email']=$err_count_email;
@@ -90,7 +85,7 @@ $this->validation();
                 echo "Пользователь уже зарегестрирован\n";
             }
             if (isset($this->button_auto) && !empty($autochek_column)) { //проверка на возможность авторизации
-                $this->autorization();
+                $this->autorization($autochek_column);
             }elseif (isset($this->button_auto) && empty($autochek_column) && empty($regchek_column)){ //если пользователь не зарегестрирован
                 echo "Данный пользователь не зарегестрирован\n";
                 $err_auto=1;
@@ -124,31 +119,28 @@ $this->validation();
                 $_POST['err_auto_password']=$err_auto_password;
                 $_POST['err_auto']=$err_auto;
             }
-
-
             echo "Неусепешная регитсрация вход \n";
         }
 }
-private function registration($admin=0){
+private function registration($chek, $admin=0){
         try{
             $reg=$this->DaaBaa->DaBa->prepare("INSERT INTO `registred`(`email`,`name`,`password`,`admin`) VALUES('$this->email', '$this->name', MD5('$this->password'),'$admin')");
             $reg->execute();
             echo 'Вы зарегестрированы';
-
         }catch(PDOException $e){
 echo $e->getMessage();
         }
-$this->autorization();
+$this->autorization($chek);
 }
-private function autorization(){
+private function autorization($chek){
         try{
             $querry=$this->DaaBaa->DaBa->prepare("SELECT * FROM `registred` WHERE `email` LIKE '$this->email' AND `admin` = '1'");
             $querry->execute();
-            //$querry = $this->DaaBaa->DaBa->prepare("SELECT FOUND ROWS");
             $querry_column = $querry->fetchColumn();
             if(!empty($querry_column )){
                 $_SESSION['user']=true;
                 $_SESSION['admin']=true;
+                $_SESSION['id']=$chek;
                 header("Location:https://localhost/filmorec.php");
             }
         }catch(PDOException $e){
@@ -157,17 +149,15 @@ private function autorization(){
     try{
         $polzin=$this->DaaBaa->DaBa->prepare("SELECT * FROM `registred` WHERE `email` LIKE '$this->email' AND `admin` = '0'");
         $polzin->execute();
-        //$polzin = $this->DaaBaa->DaBa->prepare("SELECT FOUND ROWS");
         $polzin_column = $polzin->fetchColumn();
         if(!empty($polzin_column)){
             $_SESSION['user']=true;
+            $_SESSION['id']=$chek;
             header("Location:https://localhost/filmorec.php");
         }
     }catch(PDOException $e){
         echo $e->getMessage();
     }
-
-    //header("Location:https://localhost/filmorec.php");
 }
 }
 
