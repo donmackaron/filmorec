@@ -1,5 +1,4 @@
 <?php
-//require "access_right.php";
 require "DB.php";
 session_start();
 class login{
@@ -11,7 +10,6 @@ class login{
     private $button_reg='';
     private $button_auto='';
     private $DaaBaa='';
-    public $access='';
     function __construct($email='',$name='',$password='',$reterypass='',$chek=false,$button_reg=false,$buton_auto=false){
 $this->email=$email;
 $this->name=$name;
@@ -30,17 +28,13 @@ $this->validation();
         if((!empty($this->email)|| !empty($this->name))&& !empty($this->password)) { //Проверка на заполненость основных полей
             $regchek = $this->DaaBaa->DaBa->prepare("SELECT * FROM `registred` WHERE `email` LIKE '$this->email' OR `name`='$this->name'");
             $regchek->execute();
-            //$regchek = $this->DaaBaa->DaBa->prepare("SELECT FOUND ROWS");
-
             $regchek_column = $regchek->fetchColumn();
-
             $autochek = $this->DaaBaa->DaBa->prepare("SELECT * FROM `registred` WHERE `email` LIKE '$this->email' AND password = MD5('$this->password')");
             $autochek->execute();
             $autochek_column = $autochek->fetchColumn();
             if (isset($this->button_reg) && empty($regchek_column)) { //проверка на необходимость регистрации
                 echo "Начало регистрации\n";
                 if (filter_var($this->email, FILTER_VALIDATE_EMAIL) && strlen($this->email) < 30 && strlen($this->name) < 30 && preg_match("/^[a-zа-яё\d]{1}[a-zа-яё\d\s]*[a-zа-яё\d]{1}$/i", $this->name) && strlen($this->password) == 32 && isset($this->reterypass) && MD5($this->password) == MD5($this->reterypass) && isset($this->chek)) { //валидация полей для регистрации
-
                     $this->registration($regchek_column);
                     echo "Успешная регистрация\n";
                 }else{ //если одно из полей заполнено не верно
@@ -53,7 +47,6 @@ $this->validation();
                     if(!preg_match("/^[a-zа-яё\d]{1}[a-zа-яё\d\s]*[a-zа-яё\d]{1}$/i", $this->name)){
                         $err_reg_name=1;
                     }
-
                     if(strlen($this->name) > 30){
                         $err_count_name=1;
                     }
@@ -63,7 +56,6 @@ $this->validation();
                     if(!isset($this->reterypass)){
                         $err_reg_reterypass=1;
                     }
-
                     if(MD5($this->password) != MD5($this->reterypass) && isset($this->reterypass)){
                         $err_count_reterypass=1;
                     }
@@ -138,9 +130,11 @@ private function autorization($chek){
             $querry->execute();
             $querry_column = $querry->fetchColumn();
             if(!empty($querry_column )){
-                $_SESSION['user']=true;
                 $_SESSION['admin']=true;
+                $_SESSION['user']=true;
                 $_SESSION['id']=$chek;
+                $_SESSION['admin']=$chek['admin'];
+                print $_SESSION['admin'];
                 header("Location:https://localhost/filmorec.php");
             }
         }catch(PDOException $e){

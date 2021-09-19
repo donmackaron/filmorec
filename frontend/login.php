@@ -41,7 +41,6 @@ if(isset($err_reg)){
 if(isset($err_auto)){
     $_POST['autoriz']=$err_auto;
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -49,7 +48,6 @@ if(isset($err_auto)){
 <head>
     <meta charset="UTF-8">
     <title>Регистрация</title>
-
 </head>
 <body>
 <form name="login" action="" method="post">

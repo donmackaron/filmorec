@@ -4,23 +4,33 @@ require "DB.php";
 class polz{
     private $com='';
     private $add_com='';
+    private $id_obz='';
+
 protected $DatBas='';
 function __construct()
 {
     $this->DatBas=new DB;
 }
-public function set_polz($com,$add_com){
+public function set_polz($id_obz,$com,$add_com){
     $this->com=$com;
     $this->add_com=$add_com;
+    $this->id_obz=$id_obz;
     $this->validate();
 }
 private function validate(){
-    $this->comment();
-}
-private function comment(){
+    if(isset($this->add_com) && isset($this->com) && strlen($this->com) < 500){
+        $this->comment();
+    }
 
 }
+private function comment(){
+    $id_polz=$_SESSION['id'];
+    $today=date("y.m.d");
+    $COMadd=$this->DatBas->DaBa->prepare("INSERT INTO `comment` ( `id_polz`, `id_obz`,`Commnet`,`time`) VALUES ('$id_polz','$this->id_obz','$this->com','$today')");
+    $COMadd->execute();
 }
+}
+
 class admin extends polz{
     private $id='';
     private $name_obzor='';
@@ -219,7 +229,6 @@ class admin extends polz{
             }
         }
     }
-
     private function loadfiles($parts_image,$parts_video){
         $this->id=$_SESSION['id'];
         $this->polz=new polz;
