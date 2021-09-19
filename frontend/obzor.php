@@ -13,7 +13,7 @@ $path_video="http://localhost/server_video/";
 $BD=new DB;
 $obzor=$BD->DaBa->query("SELECT `id`, `name_obzor` , `text`, `files_pic`,`files_vid` , `time` FROM `obzor` WHERE `id` LIKE '$id'");
 $obzor_col=$obzor->fetchAll();
-$polz=$BD->DaBa->query("SELECT `Commnet`,`time` FROM `comment`");
+$polz=$BD->DaBa->query("SELECT `Commnet`,`time` FROM `comment` WHERE `id_obz` LIKE '$id'");
 ?>
 <!DOCTYPE html>
 <html lang="ru">
